@@ -156,6 +156,47 @@ agent can run.
 
 ---
 
+## 8. Investigate: was read-only ever actually a requirement?
+
+**Status:** unresolved question about scope. Needs a decision, not a patch.
+
+The extension is read-only: `dispatch-core.ts` refuses to launch any adapter that
+does not declare `capabilities.readOnly`, Codex runs under `-s read-only`, and
+Claude is limited to `--tools Read,Bash` with the working tree in `denyWrite`.
+
+That constraint is enforced as a hard requirement in
+`openspec/changes/add-agent-dispatch/spec.md` ("A dispatched agent MUST NOT be
+able to modify files in the working tree"). **Its provenance is unclear.** The
+proposal's entire rationale is independent review and second opinions, and
+read-only appears to have been inferred from that review framing rather than
+requested explicitly. No document in this repository quotes the originating
+requirement, and the constraint was committed (`63e1887 docs: extension
+proposal`) by an earlier agent session, not this one.
+
+**Why it matters:** if read-only was an inference rather than a requirement, the
+project may be missing its most obviously useful capability — asking Codex or
+Claude to *implement* a change rather than only critique one.
+
+**What to decide:**
+
+1. Confirm with the original requester whether write-enabled dispatch was ever
+   wanted. If read-only was deliberate, close this item and say so in the spec.
+2. If writes are wanted, decide the shape. A separate opt-in capability (or a
+   distinct `implement` tool) is preferable to removing the guard: review
+   dispatches should stay read-only by default.
+3. Decide the blast radius — the whole working tree, or a branch/worktree?
+   Today `denyWrite` covers the working directory and the repository root.
+
+**What it would take:** a new change proposal, not a flag flip. Codex needs
+`-s workspace-write`; Claude needs `Edit`/`Write` in `--tools` and relaxed
+`denyWrite` / `allowUnsandboxedCommands`. Every caveat above (1–7) was written on
+the assumption that dispatched agents cannot write, so each would need
+re-evaluating — in particular the environment-credential leak (1) and process
+cleanup (3) become materially more dangerous once a dispatched agent can modify
+the tree.
+
+---
+
 ## Deferred work (explicitly out of scope)
 
 These were named as non-goals in the original proposal. Not bugs; do not
@@ -165,5 +206,6 @@ implement without a new change proposal.
 - Multi-CLI fan-out as a distinct feature.
 - Persistence across Pi restarts; session resume or follow-up turns.
 - Structured / schema-constrained results.
-- Write-enabled dispatch.
+- Write-enabled dispatch. **See item 8 — the requirement behind this one is
+  unconfirmed and under investigation.**
 - Publishing to npm and CI (the package currently installs from a local path or git).
