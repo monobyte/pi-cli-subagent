@@ -1,0 +1,28 @@
+{
+	"name": "pi-cli-subagent",
+	"version": "0.0.0",
+	"license": "MIT",
+	"author": "Daniel Carter",
+	"type": "module",
+	"description": "Pi extension: dispatch a task to an installed external CLI coding agent and return its result inline.",
+	"keywords": ["pi-package"],
+	"pi": {
+		"extensions": ["./.pi/extensions/agent-dispatch/index.ts"]
+	},
+	"scripts": {
+		"link-deps": "node scripts/link-deps.mjs",
+		"typecheck": "node ./node_modules/typescript/bin/tsc --noEmit",
+		"test": "node --experimental-strip-types --test test/*.test.ts"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-agent-core": "*",
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*",
+		"typebox": "*"
+	},
+	"devDependencies": {
+		"@types/node": "^24.0.0",
+		"typescript": "^5.8.3"
+	}
+}
